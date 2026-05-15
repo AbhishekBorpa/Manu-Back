@@ -39,6 +39,12 @@ const leadSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  buyerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: false
+  },
+
   notes: {
     type: String,
     default: ''
