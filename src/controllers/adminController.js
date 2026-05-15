@@ -65,6 +65,16 @@ export const getPartnerProfiles = async (req, res) => {
   }
 };
 
+export const getPartnerProfileById = async (req, res) => {
+  try {
+    const profile = await PartnerProfile.findById(req.params.id).populate("userId", "name email role phoneNumber");
+    if (!profile) return res.status(404).json({ success: false, msg: "Partner profile not found" });
+    res.status(200).json({ success: true, profile });
+  } catch (err) {
+    res.status(500).json({ success: false, msg: "Server error" });
+  }
+};
+
 export const verifyPartner = async (req, res) => {
   try {
     const { status } = req.body;

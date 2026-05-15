@@ -5,6 +5,7 @@ import {
   updateUser, 
   deleteUser, 
   getPartnerProfiles, 
+  getPartnerProfileById,
   verifyPartner,
   getKYCRequests 
 } from "../controllers/adminController.js";
@@ -40,6 +41,7 @@ router.put("/subscribers/:id", authMiddleware, roleMiddleware("admin"), updateSu
 router.delete("/subscribers/:id", authMiddleware, roleMiddleware("admin"), deleteSubscriber);
 
 router.get("/partner-profiles", authMiddleware, roleMiddleware("admin"), getPartnerProfiles);
+router.get("/partner-profiles/:id", authMiddleware, roleMiddleware("admin"), getPartnerProfileById);
 router.put("/partner-profiles/:id/verify", authMiddleware, roleMiddleware("admin"), verifyPartner);
 
 router.get("/kyc-requests", authMiddleware, roleMiddleware("admin"), getKYCRequests);
