@@ -1,5 +1,13 @@
 import express from "express";
-import { getAdminStats, getUsers, updateUser, deleteUser, getPartnerProfiles, verifyPartner } from "../controllers/adminController.js";
+import { 
+  getAdminStats, 
+  getUsers, 
+  updateUser, 
+  deleteUser, 
+  getPartnerProfiles, 
+  verifyPartner,
+  getKYCRequests 
+} from "../controllers/adminController.js";
 import { 
   getServices, 
   getOrders, updateOrder, deleteOrder,
@@ -33,5 +41,7 @@ router.delete("/subscribers/:id", authMiddleware, roleMiddleware("admin"), delet
 
 router.get("/partner-profiles", authMiddleware, roleMiddleware("admin"), getPartnerProfiles);
 router.put("/partner-profiles/:id/verify", authMiddleware, roleMiddleware("admin"), verifyPartner);
+
+router.get("/kyc-requests", authMiddleware, roleMiddleware("admin"), getKYCRequests);
 
 export default router;

@@ -79,3 +79,45 @@ export const updatePartnerProfile = async (req, res) => {
     res.status(500).json({ msg: 'Server Error' });
   }
 };
+
+// @desc    Submit KYC documents
+// @route   POST /api/partner/kyc
+export const submitKYC = async (req, res) => {
+  try {
+    const { gstNumber, businessRegistrationNumber, gstDoc, businessRegDoc } = req.body;
+    
+    let profile = await PartnerProfile.findOne({ userId: req.user.id });
+
+    if (!profile) {
+      return res.status(404).json({ msg: 'Partner profile not found. Please update your profile first.' });
+    }
+
+    profile.gstNumber = gstNumber || profile.gstNumber;
+    profile.businessRegistrationNumber = businessRegistrationNumber || profile.businessRegistrationNumber;
+    profile.gstDoc = gstDoc || profile.gstDoc;
+    profile.businessRegDoc = businessRegDoc || profile.businessRegDoc;
+    profile.verificationStatus = 'Pending';
+    profile.kycSubmittedAt = new Date();
+
+    await profile.save();
+
+    res.json({ success: true, profile });
+  } catch (err) {
+    console.error("KYC Submit Error:", err);
+    res.status(500).json({ msg: 'Server Error' });
+  }
+};
+
+// @desc    Get KYC status
+// @route   GET /api/partner/kyc-status
+export const getKYCStatus = async (req, res) => {
+  try {
+    const profile = await PartnerProfile.findOne({ userId: req.user.id });
+    if (!profile) {
+      return res.json({ success: true, status: 'Not Submitted', profile: null });
+    }
+    res.json({ success: true, status: profile.verificationStatus, profile });
+  } catch (err) {
+    res.status(500).json({ msg: 'Server Error' });
+  }
+};

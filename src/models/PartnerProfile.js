@@ -24,11 +24,34 @@ const partnerProfileSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  
+  /* 🔥 KYC FIELDS */
+  gstNumber: {
+    type: String,
+    default: ''
+  },
+  businessRegistrationNumber: {
+    type: String,
+    default: ''
+  },
+  gstDoc: {
+    type: String,
+    default: ''
+  },
+  businessRegDoc: {
+    type: String,
+    default: ''
+  },
+  kycSubmittedAt: {
+    type: Date
+  },
+
   verificationStatus: {
     type: String,
-    enum: ['Pending', 'Verified', 'Rejected'],
-    default: 'Pending'
+    enum: ['Not Submitted', 'Pending', 'Verified', 'Rejected'],
+    default: 'Not Submitted'
   },
+  
   plan: {
     type: String,
     enum: ['Free', 'Basic', 'Premium', 'Elite'],

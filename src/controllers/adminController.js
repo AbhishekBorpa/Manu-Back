@@ -80,10 +80,21 @@ export const verifyPartner = async (req, res) => {
 
     if (!profile) return res.status(404).json({ success: false, msg: "Partner profile not found" });
 
-    // Optionally update the underlying User role if verified? Not required but good practice if needed.
-    // We will just stick to updating the profile status.
-
     res.status(200).json({ success: true, profile });
+  } catch (err) {
+    res.status(500).json({ success: false, msg: "Server error" });
+  }
+};
+
+// @desc    Get all pending KYC requests
+// @route   GET /api/admin/kyc-requests
+export const getKYCRequests = async (req, res) => {
+  try {
+    const requests = await PartnerProfile.find({ verificationStatus: 'Pending' })
+      .populate("userId", "name email")
+      .sort({ kycSubmittedAt: -1 });
+    
+    res.status(200).json({ success: true, requests });
   } catch (err) {
     res.status(500).json({ success: false, msg: "Server error" });
   }
