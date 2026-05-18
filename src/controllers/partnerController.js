@@ -76,7 +76,7 @@ export const getPartnerInventory = async (req, res) => {
 // @route   POST /api/partner/profile
 export const updatePartnerProfile = async (req, res) => {
   try {
-    const { companyName, address, website } = req.body;
+    const { companyName, address, website, logo, phone } = req.body;
     
     let profile = await PartnerProfile.findOne({ userId: req.user.id });
 
@@ -84,19 +84,30 @@ export const updatePartnerProfile = async (req, res) => {
       profile.companyName = companyName || profile.companyName;
       profile.address = address || profile.address;
       profile.website = website || profile.website;
+      profile.logo = logo !== undefined ? logo : profile.logo;
       await profile.save();
     } else {
       profile = new PartnerProfile({
         userId: req.user.id,
-        companyName,
+        companyName: companyName || 'Ultra Partner',
         address,
-        website
+        website,
+        logo
       });
       await profile.save();
     }
 
+    if (phone !== undefined) {
+      const user = await User.findById(req.user.id);
+      if (user) {
+        user.phone = phone;
+        await user.save();
+      }
+    }
+
     res.json(profile);
   } catch (err) {
+    console.error("Update profile error:", err);
     res.status(500).json({ msg: 'Server Error' });
   }
 };
@@ -110,7 +121,10 @@ export const submitKYC = async (req, res) => {
     let profile = await PartnerProfile.findOne({ userId: req.user.id });
 
     if (!profile) {
-      return res.status(404).json({ msg: 'Partner profile not found. Please update your profile first.' });
+      profile = new PartnerProfile({
+        userId: req.user.id,
+        companyName: req.user.name || 'Ultra Partner'
+      });
     }
 
     profile.gstNumber = gstNumber || profile.gstNumber;

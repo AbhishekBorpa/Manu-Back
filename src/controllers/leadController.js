@@ -25,9 +25,16 @@ export const createLead = async (req, res) => {
 
 export const getMyLeads = async (req, res) => {
   try {
-    const leads = await Lead.find({ buyerId: req.user.id }).sort({ createdAt: -1 });
+    const email = req.user.email.toLowerCase().trim();
+    const leads = await Lead.find({
+      $or: [
+        { buyerId: req.user._id },
+        { email: new RegExp("^" + email + "$", "i") }
+      ]
+    }).sort({ createdAt: -1 });
     res.status(200).json({ success: true, count: leads.length, leads });
   } catch (err) {
+    console.log("GET MY LEADS ERROR =>", err.message);
     res.status(500).json({ success: false, msg: "Server error" });
   }
 };

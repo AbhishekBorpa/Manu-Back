@@ -3,6 +3,9 @@ import express from "express";
 import {
   registerUser,
   loginUser,
+  updateProfile,
+  changePassword,
+  getUserOrders,
 } from "../controllers/authController.js";
 
 import validationMiddleware from "../middlewares/validationMiddleware.js";
@@ -59,6 +62,25 @@ router.get(
   }
 );
 
+/* 🔥 UPDATE PROFILE */
+router.put(
+  "/profile",
+  authMiddleware,
+  updateProfile
+);
 
+/* 🔥 CHANGE PASSWORD */
+router.put(
+  "/password",
+  authMiddleware,
+  changePassword
+);
+
+/* 🔥 GET USER ORDERS */
+router.get(
+  "/orders",
+  authMiddleware,
+  getUserOrders
+);
 
 export default router;
