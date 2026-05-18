@@ -2,7 +2,11 @@ import express from 'express';
 import { 
   getDashboardStats, 
   getPartnerLeads, 
+  updatePartnerLead,
   getPartnerInventory, 
+  addPartnerInventory,
+  updatePartnerInventory,
+  deletePartnerInventory,
   updatePartnerProfile,
   submitKYC,
   getKYCStatus
@@ -18,7 +22,11 @@ router.use(checkRole('partner', 'admin'));
 
 router.get('/stats', getDashboardStats);
 router.get('/leads', getPartnerLeads);
+router.put('/leads/:id', updatePartnerLead);
 router.get('/inventory', getPartnerInventory);
+router.post('/inventory', addPartnerInventory);
+router.put('/inventory/:id', updatePartnerInventory);
+router.delete('/inventory/:id', deletePartnerInventory);
 router.post('/profile', updatePartnerProfile);
 router.post('/kyc', submitKYC);
 router.get('/kyc-status', getKYCStatus);

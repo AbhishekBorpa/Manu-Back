@@ -142,3 +142,101 @@ export const getKYCStatus = async (req, res) => {
     res.status(500).json({ msg: 'Server Error' });
   }
 };
+
+// @desc    Add partner inventory
+// @route   POST /api/partner/inventory
+export const addPartnerInventory = async (req, res) => {
+  try {
+    const { name, category, sku, stock, price, description } = req.body;
+    
+    // Check if SKU exists
+    const existing = await PartnerInventory.findOne({ sku });
+    if (existing) {
+      return res.status(400).json({ success: false, msg: 'SKU already exists' });
+    }
+
+    const newItem = new PartnerInventory({
+      name,
+      category,
+      sku,
+      stock,
+      price,
+      description,
+      partnerId: req.user.id
+    });
+
+    await newItem.save();
+    res.status(201).json({ success: true, item: newItem });
+  } catch (err) {
+    console.error("Add Inventory Error:", err);
+    res.status(500).json({ success: false, msg: 'Server Error' });
+  }
+};
+
+// @desc    Update partner inventory
+// @route   PUT /api/partner/inventory/:id
+export const updatePartnerInventory = async (req, res) => {
+  try {
+    let item = await PartnerInventory.findById(req.params.id);
+    if (!item) {
+      return res.status(404).json({ success: false, msg: 'Item not found' });
+    }
+
+    // Make sure user owns item
+    if (item.partnerId.toString() !== req.user.id && req.user.role !== 'admin') {
+      return res.status(401).json({ success: false, msg: 'User not authorized' });
+    }
+
+    item = await PartnerInventory.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json({ success: true, item });
+  } catch (err) {
+    console.error("Update Inventory Error:", err);
+    res.status(500).json({ success: false, msg: 'Server Error' });
+  }
+};
+
+// @desc    Delete partner inventory
+// @route   DELETE /api/partner/inventory/:id
+export const deletePartnerInventory = async (req, res) => {
+  try {
+    const item = await PartnerInventory.findById(req.params.id);
+    if (!item) {
+      return res.status(404).json({ success: false, msg: 'Item not found' });
+    }
+
+    // Make sure user owns item
+    if (item.partnerId.toString() !== req.user.id && req.user.role !== 'admin') {
+      return res.status(401).json({ success: false, msg: 'User not authorized' });
+    }
+
+    await PartnerInventory.findByIdAndDelete(req.params.id);
+    res.json({ success: true, msg: 'Item removed' });
+  } catch (err) {
+    console.error("Delete Inventory Error:", err);
+    res.status(500).json({ success: false, msg: 'Server Error' });
+  }
+};
+
+// @desc    Update lead status (Partner)
+// @route   PUT /api/partner/leads/:id
+export const updatePartnerLead = async (req, res) => {
+  try {
+    const { status, notes } = req.body;
+    let lead = await Lead.findById(req.params.id);
+
+    if (!lead) {
+      return res.status(404).json({ success: false, msg: 'Lead not found' });
+    }
+
+    // Verify ownership
+    if (lead.partnerId.toString() !== req.user.id && req.user.role !== 'admin') {
+      return res.status(401).json({ success: false, msg: 'Not authorized' });
+    }
+
+    lead = await Lead.findByIdAndUpdate(req.params.id, { status, notes }, { new: true });
+    res.json({ success: true, lead });
+  } catch (err) {
+    console.error("Update Lead Error:", err);
+    res.status(500).json({ success: false, msg: 'Server Error' });
+  }
+};
