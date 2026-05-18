@@ -45,6 +45,17 @@ const productSchema =
         default: "Industrial",
       },
 
+      price: {
+        type: Number,
+        default: 0,
+      },
+
+      location: {
+        type: String,
+        trim: true,
+        default: "Delhi",
+      },
+
       featured: {
         type: Boolean,
         default: false,

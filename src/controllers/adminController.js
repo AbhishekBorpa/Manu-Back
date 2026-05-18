@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import Product from "../models/Product.js";
 import Lead from "../models/Lead.js";
 import PartnerProfile from "../models/PartnerProfile.js";
+import Order from "../models/Order.js";
 
 
 export const getAdminStats = async (req, res) => {
@@ -10,8 +11,9 @@ export const getAdminStats = async (req, res) => {
     const totalProducts = await Product.countDocuments();
     const totalLeads = await Lead.countDocuments();
     
-    // Calculate total revenue (example logic)
-    const revenue = 840000; // Hardcoded for now or sum from orders if available
+    // Calculate total revenue from paid orders
+    const orders = await Order.find({ paymentStatus: "Paid" });
+    const totalRevenue = orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
 
     res.status(200).json({
       success: true,
@@ -19,7 +21,7 @@ export const getAdminStats = async (req, res) => {
         totalUsers,
         totalProducts,
         totalLeads,
-        totalRevenue: revenue
+        totalRevenue
       }
     });
   } catch (err) {

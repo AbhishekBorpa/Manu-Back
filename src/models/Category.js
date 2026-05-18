@@ -24,6 +24,12 @@ const categorySchema =
         required: true,
         trim: true,
       },
+
+      type: {
+        type: String,
+        enum: ["industry", "machine"],
+        default: "machine",
+      },
     },
     {
       timestamps: true,

@@ -12,19 +12,40 @@ export const getDashboardStats = async (req, res) => {
 
     const totalLeads = await Lead.countDocuments({ partnerId });
     const activeOrders = await Lead.countDocuments({ partnerId, status: 'In Progress' });
-    const convertedLeads = await Lead.countDocuments({ partnerId, status: 'Converted' });
+    const convertedLeads = await Lead.find({ partnerId, status: 'Converted' });
     
     // Calculate success rate
-    const successRate = totalLeads > 0 ? (convertedLeads / totalLeads) * 100 : 0;
+    const successRate = totalLeads > 0 ? ((convertedLeads.length) / totalLeads) * 100 : 0;
+
+    // Calculate revenue from converted leads budget
+    let totalRevenueValue = 0;
+    convertedLeads.forEach(lead => {
+      if (lead.budget) {
+        // Remove currency symbols, commas and extra spaces
+        const numericBudget = parseInt(lead.budget.replace(/[^\d]/g, ''), 10);
+        if (!isNaN(numericBudget)) {
+          totalRevenueValue += numericBudget;
+        }
+      }
+    });
+
+    // Format revenue for display (e.g., ₹8.4L)
+    const formatRevenue = (val) => {
+      if (val >= 10000000) return `₹${(val / 10000000).toFixed(1)}Cr`;
+      if (val >= 100000) return `₹${(val / 100000).toFixed(1)}L`;
+      if (val >= 1000) return `₹${(val / 1000).toFixed(1)}K`;
+      return `₹${val}`;
+    };
 
     res.json({
       totalLeads,
       activeOrders,
       successRate: Math.round(successRate),
-      totalRevenue: '₹8.4L',
+      totalRevenue: formatRevenue(totalRevenueValue),
       revenueTrend: '+8.1%'
     });
   } catch (err) {
+    console.error("Stats Error:", err);
     res.status(500).json({ msg: 'Server Error' });
   }
 };
