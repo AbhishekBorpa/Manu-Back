@@ -122,8 +122,8 @@ export const updatePartnerProfile = async (req, res) => {
 // @route   POST /api/partner/kyc
 export const submitKYC = async (req, res) => {
   try {
-    const { gstNumber, businessRegistrationNumber } = req.body;
-    let { gstDoc, businessRegDoc } = req.body;
+    const { gstNumber, businessRegistrationNumber, aadharNumber, panNumber } = req.body;
+    let { gstDoc, businessRegDoc, aadharDoc, panDoc } = req.body;
 
     // Handle files from Cloudinary
     if (req.files) {
@@ -132,6 +132,12 @@ export const submitKYC = async (req, res) => {
       }
       if (req.files.businessRegDoc && req.files.businessRegDoc[0]) {
         businessRegDoc = req.files.businessRegDoc[0].path;
+      }
+      if (req.files.aadharDoc && req.files.aadharDoc[0]) {
+        aadharDoc = req.files.aadharDoc[0].path;
+      }
+      if (req.files.panDoc && req.files.panDoc[0]) {
+        panDoc = req.files.panDoc[0].path;
       }
     }
     
@@ -146,8 +152,14 @@ export const submitKYC = async (req, res) => {
 
     profile.gstNumber = gstNumber || profile.gstNumber;
     profile.businessRegistrationNumber = businessRegistrationNumber || profile.businessRegistrationNumber;
+    profile.aadharNumber = aadharNumber || profile.aadharNumber;
+    profile.panNumber = panNumber || profile.panNumber;
+    
     profile.gstDoc = gstDoc || profile.gstDoc;
     profile.businessRegDoc = businessRegDoc || profile.businessRegDoc;
+    profile.aadharDoc = aadharDoc || profile.aadharDoc;
+    profile.panDoc = panDoc || profile.panDoc;
+
     profile.verificationStatus = 'Pending';
     profile.kycSubmittedAt = new Date();
 

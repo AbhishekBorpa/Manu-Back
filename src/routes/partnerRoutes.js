@@ -31,7 +31,9 @@ router.delete('/inventory/:id', deletePartnerInventory);
 router.post('/profile', upload.single('logo'), updatePartnerProfile);
 router.post('/kyc', upload.fields([
   { name: 'gstDoc', maxCount: 1 },
-  { name: 'businessRegDoc', maxCount: 1 }
+  { name: 'businessRegDoc', maxCount: 1 },
+  { name: 'aadharDoc', maxCount: 1 },
+  { name: 'panDoc', maxCount: 1 }
 ]), submitKYC);
 router.get('/kyc-status', getKYCStatus);
 

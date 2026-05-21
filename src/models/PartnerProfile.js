@@ -34,11 +34,27 @@ const partnerProfileSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  aadharNumber: {
+    type: String,
+    default: ''
+  },
+  panNumber: {
+    type: String,
+    default: ''
+  },
   gstDoc: {
     type: String,
     default: ''
   },
   businessRegDoc: {
+    type: String,
+    default: ''
+  },
+  aadharDoc: {
+    type: String,
+    default: ''
+  },
+  panDoc: {
     type: String,
     default: ''
   },
