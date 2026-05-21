@@ -45,6 +45,12 @@ const productSchema =
         default: "Industrial",
       },
 
+      subcategory: {
+        type: String,
+        trim: true,
+        default: "",
+      },
+
       price: {
         type: Number,
         default: 0,

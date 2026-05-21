@@ -30,6 +30,13 @@ const categorySchema =
         enum: ["industry", "machine"],
         default: "machine",
       },
+
+      subcategories: [
+        {
+          type: String,
+          trim: true,
+        },
+      ],
     },
     {
       timestamps: true,

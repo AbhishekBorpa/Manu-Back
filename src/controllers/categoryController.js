@@ -47,9 +47,15 @@ export const createCategory = async (
 
     let {
       name,
+      subcategories,
     } = req.body;
 
     let icon = req.body.icon;
+
+    /* 🔥 HANDLE SUBCATEGORIES */
+    if (typeof subcategories === "string") {
+      subcategories = subcategories.split(",").map(s => s.trim()).filter(s => s !== "");
+    }
 
     /* 🔥 HANDLE CLOUDINARY UPLOAD */
     if (req.file) {
@@ -106,6 +112,7 @@ export const createCategory = async (
           newCategoryId,
         name,
         icon,
+        subcategories,
       });
 
     res.status(201).json({
@@ -138,11 +145,22 @@ export const updateCategory = async (
   res
 ) => {
   try {
+    let updateData = { ...req.body };
+
+    /* 🔥 HANDLE SUBCATEGORIES */
+    if (typeof updateData.subcategories === "string") {
+      updateData.subcategories = updateData.subcategories.split(",").map(s => s.trim()).filter(s => s !== "");
+    }
+
+    /* 🔥 HANDLE CLOUDINARY UPLOAD */
+    if (req.file) {
+      updateData.icon = req.file.path;
+    }
 
     const category =
       await Category.findByIdAndUpdate(
         req.params.id,
-        req.body,
+        updateData,
         {
           new: true,
           runValidators: true,

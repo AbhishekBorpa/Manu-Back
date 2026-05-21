@@ -89,6 +89,9 @@ export const createProduct = async (
       desc,
       featured,
       category,
+      subcategory,
+      price,
+      location,
     } = req.body;
 
     let image = req.body.image;
@@ -146,6 +149,9 @@ export const createProduct = async (
         icon,
         featured,
         category,
+        subcategory,
+        price,
+        location,
       });
 
     res.status(201).json({
@@ -178,11 +184,22 @@ export const updateProduct = async (
   res
 ) => {
   try {
+    let updateData = { ...req.body };
+
+    /* 🔥 HANDLE FILES FROM CLOUDINARY */
+    if (req.files) {
+      if (req.files.image && req.files.image[0]) {
+        updateData.image = req.files.image[0].path;
+      }
+      if (req.files.icon && req.files.icon[0]) {
+        updateData.icon = req.files.icon[0].path;
+      }
+    }
 
     const product =
       await Product.findByIdAndUpdate(
         req.params.id,
-        req.body,
+        updateData,
         {
           new: true,
           runValidators: true,
