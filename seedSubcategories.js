@@ -370,7 +370,11 @@ const seedSubcategories = async () => {
     await Category.deleteMany();
 
     console.log("Seeding categories with subcategories...");
-    await Category.insertMany(categoriesWithSubcategories);
+    const trimmed = categoriesWithSubcategories.map(cat => ({
+      ...cat,
+      subcategories: cat.subcategories.slice(0, 3)
+    }));
+    await Category.insertMany(trimmed);
 
     console.log(`${categoriesWithSubcategories.length} categories seeded with subcategories successfully!`);
     process.exit(0);
