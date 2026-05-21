@@ -98,8 +98,6 @@ export const verifyPartner = async (req, res) => {
   }
 };
 
-// @desc    Get all pending KYC requests
-// @route   GET /api/admin/kyc-requests
 export const getKYCRequests = async (req, res) => {
   try {
     const requests = await PartnerProfile.find({ verificationStatus: 'Pending' })
@@ -107,6 +105,39 @@ export const getKYCRequests = async (req, res) => {
       .sort({ kycSubmittedAt: -1 });
     
     res.status(200).json({ success: true, requests });
+  } catch (err) {
+    res.status(500).json({ success: false, msg: "Server error" });
+  }
+};
+
+export const updatePartnerProfile = async (req, res) => {
+  try {
+    const allowedFields = ['companyName', 'address', 'website', 'plan', 'verificationStatus'];
+    const updates = {};
+    for (const key of allowedFields) {
+      if (req.body[key] !== undefined) updates[key] = req.body[key];
+    }
+
+    const profile = await PartnerProfile.findByIdAndUpdate(
+      req.params.id,
+      updates,
+      { new: true }
+    ).populate("userId", "name email");
+
+    if (!profile) return res.status(404).json({ success: false, msg: "Partner profile not found" });
+
+    res.status(200).json({ success: true, profile });
+  } catch (err) {
+    res.status(500).json({ success: false, msg: "Server error" });
+  }
+};
+
+export const deletePartnerProfile = async (req, res) => {
+  try {
+    const profile = await PartnerProfile.findByIdAndDelete(req.params.id);
+    if (!profile) return res.status(404).json({ success: false, msg: "Partner profile not found" });
+
+    res.status(200).json({ success: true, msg: "Partner profile deleted" });
   } catch (err) {
     res.status(500).json({ success: false, msg: "Server error" });
   }
