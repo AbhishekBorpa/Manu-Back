@@ -149,11 +149,17 @@ export const updateManufacturing = async (
   res
 ) => {
   try {
+    let updateData = { ...req.body };
+
+    /* 🔥 HANDLE CLOUDINARY UPLOAD */
+    if (req.file) {
+      updateData.img = req.file.path;
+    }
 
     const manufacturing =
       await Manufacturing.findByIdAndUpdate(
         req.params.id,
-        req.body,
+        updateData,
         {
           new: true,
           runValidators: true,
