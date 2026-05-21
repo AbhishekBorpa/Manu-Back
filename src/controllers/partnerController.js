@@ -76,7 +76,13 @@ export const getPartnerInventory = async (req, res) => {
 // @route   POST /api/partner/profile
 export const updatePartnerProfile = async (req, res) => {
   try {
-    const { companyName, address, website, logo, phone } = req.body;
+    const { companyName, address, website, phone } = req.body;
+    let { logo } = req.body;
+
+    // Handle file from Cloudinary (via upload middleware)
+    if (req.file) {
+      logo = req.file.path;
+    }
     
     let profile = await PartnerProfile.findOne({ userId: req.user.id });
 
@@ -116,7 +122,18 @@ export const updatePartnerProfile = async (req, res) => {
 // @route   POST /api/partner/kyc
 export const submitKYC = async (req, res) => {
   try {
-    const { gstNumber, businessRegistrationNumber, gstDoc, businessRegDoc } = req.body;
+    const { gstNumber, businessRegistrationNumber } = req.body;
+    let { gstDoc, businessRegDoc } = req.body;
+
+    // Handle files from Cloudinary
+    if (req.files) {
+      if (req.files.gstDoc && req.files.gstDoc[0]) {
+        gstDoc = req.files.gstDoc[0].path;
+      }
+      if (req.files.businessRegDoc && req.files.businessRegDoc[0]) {
+        businessRegDoc = req.files.businessRegDoc[0].path;
+      }
+    }
     
     let profile = await PartnerProfile.findOne({ userId: req.user.id });
 

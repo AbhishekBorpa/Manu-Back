@@ -40,6 +40,7 @@ router.put(
   "/:id",
   authMiddleware,
   roleMiddleware("admin"),
+  upload.single("image"),
   updateCategory
 );
 

@@ -13,6 +13,7 @@ import {
 } from '../controllers/partnerController.js';
 import auth from '../middlewares/authMiddleware.js';
 import checkRole from '../middlewares/roleMiddleware.js';
+import upload from '../middlewares/upload.js';
 
 const router = express.Router();
 
@@ -27,8 +28,11 @@ router.get('/inventory', getPartnerInventory);
 router.post('/inventory', addPartnerInventory);
 router.put('/inventory/:id', updatePartnerInventory);
 router.delete('/inventory/:id', deletePartnerInventory);
-router.post('/profile', updatePartnerProfile);
-router.post('/kyc', submitKYC);
+router.post('/profile', upload.single('logo'), updatePartnerProfile);
+router.post('/kyc', upload.fields([
+  { name: 'gstDoc', maxCount: 1 },
+  { name: 'businessRegDoc', maxCount: 1 }
+]), submitKYC);
 router.get('/kyc-status', getKYCStatus);
 
 export default router;

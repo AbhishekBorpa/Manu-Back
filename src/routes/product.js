@@ -52,6 +52,10 @@ router.put(
   "/:id",
   authMiddleware,
   roleMiddleware("admin"),
+  upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "icon", maxCount: 1 },
+  ]),
   updateProduct
 );
 

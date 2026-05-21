@@ -19,9 +19,11 @@ const seedLeads = async () => {
   await connectDB();
 
   try {
-    const adminUser = await User.findOne({ role: "admin" });
-    if (!adminUser) {
-      console.log("No admin user found. Please create a user first.");
+    const adminUser = await User.findOne({ email: "admin@ultra.com" });
+    const partnerUser = await User.findOne({ email: "partner@ultra.com" });
+    
+    if (!adminUser || !partnerUser) {
+      console.log("Admin or Partner user not found. Please run seedUsers.js first.");
       process.exit(1);
     }
 
@@ -34,7 +36,7 @@ const seedLeads = async () => {
         location: "Mumbai",
         budget: "₹50,00,000",
         status: "New",
-        partnerId: adminUser._id,
+        partnerId: partnerUser._id,
         notes: "Interested in automated assembly line."
       },
       {
@@ -45,7 +47,7 @@ const seedLeads = async () => {
         location: "Bangalore",
         budget: "₹15,00,000",
         status: "In Progress",
-        partnerId: adminUser._id,
+        partnerId: partnerUser._id,
         notes: "Requires quick turnaround time."
       },
       {
@@ -56,7 +58,7 @@ const seedLeads = async () => {
         location: "Pune",
         budget: "₹1,20,00,000",
         status: "Converted",
-        partnerId: adminUser._id,
+        partnerId: partnerUser._id,
         notes: "Long term contract signed."
       },
       {
