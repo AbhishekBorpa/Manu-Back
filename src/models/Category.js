@@ -19,10 +19,16 @@ const categorySchema =
         maxlength: 100,
       },
 
+      parentCategory: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Manufacturing",
+        required: true,
+      },
+
       icon: {
         type: String,
-        required: true,
         trim: true,
+        default: "https://via.placeholder.com/150",
       },
 
       type: {

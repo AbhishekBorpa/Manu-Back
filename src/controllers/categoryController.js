@@ -11,8 +11,9 @@ export const getCategories = async (
 
     const categories =
       await Category.find()
+        .populate("parentCategory", "title")
         .sort({
-          categoryId: 1,
+          createdAt: -1,
         });
 
     res.status(200).json({
@@ -47,15 +48,10 @@ export const createCategory = async (
 
     let {
       name,
-      subcategories,
+      parentCategory,
     } = req.body;
 
     let icon = req.body.icon;
-
-    /* 🔥 HANDLE SUBCATEGORIES */
-    if (typeof subcategories === "string") {
-      subcategories = subcategories.split(",").map(s => s.trim()).filter(s => s !== "");
-    }
 
     /* 🔥 HANDLE CLOUDINARY UPLOAD */
     if (req.file) {
@@ -65,18 +61,19 @@ export const createCategory = async (
     /* 🔥 REQUIRED CHECK */
     if (
       !name ||
-      !icon
+      !parentCategory
     ) {
       return res.status(400).json({
         success: false,
         msg:
-          "Name & icon (image) required ❌",
+          "Name & parent category required ❌",
       });
     }
 
     /* 🔥 CLEAN DATA */
     name = name.trim();
     if (typeof icon === "string") icon = icon.trim();
+    if (!icon) icon = "https://via.placeholder.com/150";
 
     /* 🔥 CHECK DUPLICATE */
     const existingCategory =
@@ -88,7 +85,7 @@ export const createCategory = async (
       return res.status(400).json({
         success: false,
         msg:
-          "Category already exists ❌",
+          "Subcategory already exists ❌",
       });
     }
 
@@ -102,7 +99,7 @@ export const createCategory = async (
     /* 🔥 GENERATE ID */
     const newCategoryId =
       lastCategory
-        ? lastCategory.categoryId + 1
+        ? (lastCategory.categoryId || 1000) + 1
         : 1001;
 
     /* 🔥 CREATE */
@@ -112,13 +109,13 @@ export const createCategory = async (
           newCategoryId,
         name,
         icon,
-        subcategories,
+        parentCategory,
       });
 
     res.status(201).json({
       success: true,
       msg:
-        "Category created successfully ✅",
+        "Subcategory created successfully ✅",
       category,
     });
 
@@ -147,15 +144,13 @@ export const updateCategory = async (
   try {
     let updateData = { ...req.body };
 
-    /* 🔥 HANDLE SUBCATEGORIES */
-    if (typeof updateData.subcategories === "string") {
-      updateData.subcategories = updateData.subcategories.split(",").map(s => s.trim()).filter(s => s !== "");
-    }
-
     /* 🔥 HANDLE CLOUDINARY UPLOAD */
     if (req.file) {
       updateData.icon = req.file.path;
     }
+
+    /* 🔥 CLEAN DATA */
+    if (updateData.name) updateData.name = updateData.name.trim();
 
     const category =
       await Category.findByIdAndUpdate(
@@ -165,20 +160,20 @@ export const updateCategory = async (
           new: true,
           runValidators: true,
         }
-      );
+      ).populate("parentCategory", "title");
 
     if (!category) {
       return res.status(404).json({
         success: false,
         msg:
-          "Category not found ❌",
+          "Subcategory not found ❌",
       });
     }
 
     res.status(200).json({
       success: true,
       msg:
-        "Category updated ✅",
+        "Subcategory updated ✅",
       category,
     });
 
