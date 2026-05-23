@@ -1,4 +1,5 @@
 import Navbar from "../models/Navbar.js";
+import { DEFAULT_NAVBAR } from "../constants/defaultNavbar.js";
 
 
 
@@ -13,10 +14,10 @@ export const getNavbar = async (
       await Navbar.findOne();
 
     if (!navbar) {
-      return res.status(404).json({
-        success: false,
-        msg:
-          "Navbar data not found ❌",
+      return res.status(200).json({
+        success: true,
+        navbar: DEFAULT_NAVBAR,
+        isDefault: true,
       });
     }
 

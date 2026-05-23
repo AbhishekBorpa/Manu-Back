@@ -82,7 +82,10 @@ export const createManufacturing = async (
     }
 
     if (typeof img === "string") img = img.trim();
-    if (!img) img = "https://via.placeholder.com/150";
+    if (!img) {
+      img =
+        "https://res.cloudinary.com/djsxaigna/image/upload/v1778687629/manufacturing_b2b/tiwud4hv6wtvt4cbgozz.jpg";
+    }
 
     if (price) {
       price = price.trim();

@@ -1,4 +1,5 @@
 import AppBanner from "../models/AppBanner.js";
+import { DEFAULT_APP_BANNER } from "../constants/defaultAppBanner.js";
 
 /* 🔥 GET BANNER */
 export const getAppBanner = async (req, res) => {
@@ -7,12 +8,14 @@ export const getAppBanner = async (req, res) => {
     const banner = await AppBanner.findOne();
 
     if (!banner) {
-      return res.status(404).json({
-        msg: "Banner not found ❌",
+      return res.status(200).json({
+        success: true,
+        banner: DEFAULT_APP_BANNER,
+        isDefault: true,
       });
     }
 
-    res.status(200).json(banner);
+    res.status(200).json({ success: true, banner });
 
   } catch (err) {
 

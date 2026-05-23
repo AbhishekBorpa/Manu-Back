@@ -73,7 +73,10 @@ export const createCategory = async (
     /* 🔥 CLEAN DATA */
     name = name.trim();
     if (typeof icon === "string") icon = icon.trim();
-    if (!icon) icon = "https://via.placeholder.com/150";
+    if (!icon) {
+      icon =
+        "https://res.cloudinary.com/djsxaigna/image/upload/v1778687629/manufacturing_b2b/tiwud4hv6wtvt4cbgozz.jpg";
+    }
 
     /* 🔥 CHECK DUPLICATE */
     const existingCategory =

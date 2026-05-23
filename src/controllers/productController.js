@@ -1,4 +1,20 @@
 import Product from "../models/Product.js";
+import { formatValidationError } from "../utils/formatValidationError.js";
+
+const MIN_DESC_LENGTH = 10;
+
+const validateProductDescriptions = (shortDescription, longDescription) => {
+  const short = (shortDescription || "").trim();
+  const long = (longDescription || "").trim();
+
+  if (short.length < MIN_DESC_LENGTH) {
+    return `Short description must be at least ${MIN_DESC_LENGTH} characters (currently ${short.length})`;
+  }
+  if (long.length < MIN_DESC_LENGTH) {
+    return `Long description must be at least ${MIN_DESC_LENGTH} characters (currently ${long.length})`;
+  }
+  return null;
+};
 
 
 
@@ -13,10 +29,9 @@ export const getFeaturedProducts = async (
       await Product.find({
         featured: true,
       })
-        .sort({
-          createdAt: -1,
-        })
-        .limit(4);
+        .sort("-createdAt")
+        .limit(4)
+        .lean();
 
     res.status(200).json({
       success: true,
@@ -34,6 +49,7 @@ export const getFeaturedProducts = async (
     res.status(500).json({
       success: false,
       msg: "Server error ❌",
+      error: err.message,
     });
   }
 };
@@ -50,9 +66,8 @@ export const getProducts = async (
 
     const products =
       await Product.find()
-        .sort({
-          createdAt: -1,
-        });
+        .sort("-createdAt")
+        .lean();
 
     res.status(200).json({
       success: true,
@@ -70,6 +85,7 @@ export const getProducts = async (
     res.status(500).json({
       success: false,
       msg: "Server error ❌",
+      error: err.message,
     });
   }
 };
@@ -93,6 +109,7 @@ export const createProduct = async (
       category,
       subcategory,
       location,
+      partnerId,
     } = req.body;
 
     let image = req.body.image;
@@ -129,6 +146,11 @@ export const createProduct = async (
     if (typeof image === "string") image = image.trim();
     if (typeof icon === "string") icon = icon.trim();
 
+    const descError = validateProductDescriptions(shortDescription, longDescription);
+    if (descError) {
+      return res.status(400).json({ success: false, msg: descError });
+    }
+
     /* 🔥 DUPLICATE CHECK */
     const existingProduct =
       await Product.findOne({
@@ -156,6 +178,7 @@ export const createProduct = async (
         category,
         subcategory,
         location,
+        partnerId: partnerId || undefined,
       });
 
     res.status(201).json({
@@ -166,15 +189,12 @@ export const createProduct = async (
     });
 
   } catch (err) {
+    console.log("CREATE PRODUCT ERROR:", err.message);
 
-    console.log(
-      "CREATE PRODUCT ERROR:",
-      err.message
-    );
-
-    res.status(500).json({
+    const status = err.name === "ValidationError" || err.code === 11000 ? 400 : 500;
+    res.status(status).json({
       success: false,
-      msg: "Server error ❌",
+      msg: formatValidationError(err),
     });
   }
 };
@@ -189,6 +209,25 @@ export const updateProduct = async (
 ) => {
   try {
     let updateData = { ...req.body };
+
+    if (updateData.shortDescription !== undefined || updateData.longDescription !== undefined) {
+      const existing = await Product.findById(req.params.id).lean();
+      if (!existing) {
+        return res.status(404).json({ success: false, msg: "Product not found ❌" });
+      }
+      const short =
+        updateData.shortDescription !== undefined
+          ? String(updateData.shortDescription).trim()
+          : existing.shortDescription;
+      const long =
+        updateData.longDescription !== undefined
+          ? String(updateData.longDescription).trim()
+          : existing.longDescription;
+      const descError = validateProductDescriptions(short, long);
+      if (descError) {
+        return res.status(400).json({ success: false, msg: descError });
+      }
+    }
 
     /* 🔥 HANDLE FILES FROM CLOUDINARY */
     if (req.files) {
@@ -226,15 +265,12 @@ export const updateProduct = async (
     });
 
   } catch (err) {
+    console.log("UPDATE PRODUCT ERROR:", err.message);
 
-    console.log(
-      "UPDATE PRODUCT ERROR:",
-      err.message
-    );
-
-    res.status(500).json({
+    const status = err.name === "ValidationError" || err.code === 11000 ? 400 : 500;
+    res.status(status).json({
       success: false,
-      msg: "Server error ❌",
+      msg: formatValidationError(err),
     });
   }
 };

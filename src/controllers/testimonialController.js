@@ -1,4 +1,5 @@
 import Testimonial from "../models/Testimonial.js";
+import { DEFAULT_TESTIMONIALS } from "../constants/defaultTestimonials.js";
 
 
 
@@ -15,11 +16,16 @@ export const getTestimonials = async (
           createdAt: -1,
         });
 
+    const list =
+      testimonials.length > 0
+        ? testimonials
+        : DEFAULT_TESTIMONIALS;
+
     res.status(200).json({
       success: true,
-      count:
-        testimonials.length,
-      testimonials,
+      count: list.length,
+      testimonials: list,
+      isDefault: testimonials.length === 0,
     });
 
   } catch (err) {

@@ -34,7 +34,8 @@ const manufacturingSchema =
       img: {
         type: String,
         trim: true,
-        default: "https://via.placeholder.com/150",
+        default:
+          "https://res.cloudinary.com/djsxaigna/image/upload/v1778687629/manufacturing_b2b/tiwud4hv6wtvt4cbgozz.jpg",
       },
 
       tag: {

@@ -1,4 +1,5 @@
 import Footer from "../models/Footer.js";
+import { DEFAULT_FOOTER } from "../constants/defaultFooter.js";
 
 
 
@@ -13,10 +14,10 @@ export const getFooter = async (
       await Footer.findOne();
 
     if (!footer) {
-      return res.status(404).json({
-        success: false,
-        msg:
-          "Footer data not found ❌",
+      return res.status(200).json({
+        success: true,
+        footer: DEFAULT_FOOTER,
+        isDefault: true,
       });
     }
 

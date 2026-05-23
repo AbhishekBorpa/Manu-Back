@@ -1,17 +1,13 @@
 import express from "express";
 import { getLeads, updateLead, deleteLead, createLead, getMyLeads } from "../controllers/leadController.js";
 import authMiddleware from "../middlewares/authMiddleware.js";
+import optionalAuthMiddleware from "../middlewares/optionalAuthMiddleware.js";
 import roleMiddleware from "../middlewares/roleMiddleware.js";
 
 const router = express.Router();
 
-// Public/Semi-public: create a lead (can be logged in or guest)
-router.post("/", (req, res, next) => {
-  // Optional auth: if token exists, verify it, otherwise proceed as guest
-  const token = req.header("Authorization");
-  if (token) return authMiddleware(req, res, next);
-  next();
-}, createLead);
+// Public: create a lead (guest or logged-in buyer)
+router.post("/", optionalAuthMiddleware, createLead);
 
 // Buyer: get my own leads
 router.get("/my-queries", authMiddleware, getMyLeads);

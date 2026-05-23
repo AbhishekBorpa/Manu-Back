@@ -75,6 +75,12 @@ const productSchema =
         type: Boolean,
         default: false,
       },
+
+      partnerId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default: null,
+      },
     },
     {
       timestamps: true,

@@ -3,6 +3,10 @@ import Lead from "../models/Lead.js";
 export const createLead = async (req, res) => {
   try {
     const { name, email, phone, project, location, budget, partnerId, notes } = req.body;
+
+    if (!partnerId) {
+      return res.status(400).json({ success: false, msg: "Supplier partner is required for this inquiry" });
+    }
     
     const newLead = new Lead({
       name,
