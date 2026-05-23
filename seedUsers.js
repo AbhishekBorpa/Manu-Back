@@ -22,36 +22,43 @@ const seedUsers = async () => {
     // 1. Admin Account
     const adminPassword = await bcrypt.hash("admin123", 10);
     const admin = {
-      name: "Super Admin",
+      name: "Admin User",
       email: "admin@ultra.com",
       password: adminPassword,
-      role: "admin",
-      status: "active"
+      role: "admin"
     };
 
-    // 2. Partner Account
-    const partnerPassword = await bcrypt.hash("partner123", 10);
-    const partner = {
-      name: "Manu Partner",
-      email: "partner@ultra.com",
-      password: partnerPassword,
-      role: "partner",
-      status: "active"
+    // 2. Seller (Partner) Account
+    const sellerPassword = await bcrypt.hash("seller123", 10);
+    const seller = {
+      name: "Seller User",
+      email: "seller@ultra.com",
+      password: sellerPassword,
+      role: "partner"
+    };
+
+    // 3. Buyer (User) Account
+    const buyerPassword = await bcrypt.hash("buyer123", 10);
+    const buyer = {
+      name: "Buyer User",
+      email: "buyer@ultra.com",
+      password: buyerPassword,
+      role: "user"
     };
 
     // Clear existing users with these emails to avoid duplication
-    await User.deleteMany({ email: { $in: ["admin@ultra.com", "partner@ultra.com"] } });
+    await User.deleteMany({ email: { $in: ["admin@ultra.com", "seller@ultra.com", "buyer@ultra.com"] } });
     
-    await User.insertMany([admin, partner]);
+    await User.insertMany([admin, seller, buyer]);
 
     console.log("\n🚀 Default Credentials Created Successfully!");
     console.log("------------------------------------------");
-    console.log("ADMIN LOGIN:");
-    console.log("Email: admin@ultra.com");
-    console.log("Pass:  admin123");
-    console.log("\nPARTNER LOGIN:");
-    console.log("Email: partner@ultra.com");
-    console.log("Pass:  partner123");
+    console.log("ADMIN:");
+    console.log("Email: admin@ultra.com | Pass: admin123");
+    console.log("\nSELLER (Partner):");
+    console.log("Email: seller@ultra.com | Pass: seller123");
+    console.log("\nBUYER (User):");
+    console.log("Email: buyer@ultra.com  | Pass: buyer123");
     console.log("------------------------------------------");
 
     process.exit(0);
