@@ -73,14 +73,30 @@ export const getPartnerLeads = async (req, res) => {
   }
 };
 
+const deriveStockStatus = (stock) => {
+  const qty = Number(stock) || 0;
+  if (qty <= 0) return "Out of Stock";
+  if (qty <= 5) return "Low Stock";
+  return "In Stock";
+};
+
 // @desc    Get all inventory for a partner
 // @route   GET /api/partner/inventory
 export const getPartnerInventory = async (req, res) => {
   try {
-    const inventory = await PartnerInventory.find({ partnerId: req.user.id }).sort({ createdAt: -1 });
-    res.json(inventory);
+    const partnerId = getPartnerUserId(req.user);
+    const inventory = await PartnerInventory.find({ partnerId })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.status(200).json({
+      success: true,
+      count: inventory.length,
+      inventory,
+    });
   } catch (err) {
-    res.status(500).json({ msg: 'Server Error' });
+    console.error("getPartnerInventory Error:", err);
+    res.status(500).json({ success: false, msg: 'Server Error' });
   }
 };
 
@@ -203,28 +219,38 @@ export const getKYCStatus = async (req, res) => {
 export const addPartnerInventory = async (req, res) => {
   try {
     const { name, category, sku, stock, price, description } = req.body;
-    
-    // Check if SKU exists
-    const existing = await PartnerInventory.findOne({ sku });
-    if (existing) {
-      return res.status(400).json({ success: false, msg: 'SKU already exists' });
+
+    if (!name?.trim() || !category?.trim() || !sku?.trim() || !price?.trim()) {
+      return res.status(400).json({
+        success: false,
+        msg: "Name, category, SKU, and price are required",
+      });
     }
 
+    const existing = await PartnerInventory.findOne({ sku: sku.trim() });
+    if (existing) {
+      return res.status(400).json({ success: false, msg: "SKU already exists" });
+    }
+
+    const stockQty = Math.max(0, Number(stock) || 0);
+    const partnerId = getPartnerUserId(req.user);
+
     const newItem = new PartnerInventory({
-      name,
-      category,
-      sku,
-      stock,
-      price,
-      description,
-      partnerId: req.user.id
+      name: name.trim(),
+      category: category.trim(),
+      sku: sku.trim(),
+      stock: stockQty,
+      price: price.trim(),
+      description: description?.trim() || "",
+      status: deriveStockStatus(stockQty),
+      partnerId,
     });
 
     await newItem.save();
     res.status(201).json({ success: true, item: newItem });
   } catch (err) {
     console.error("Add Inventory Error:", err);
-    res.status(500).json({ success: false, msg: 'Server Error' });
+    res.status(500).json({ success: false, msg: "Server Error" });
   }
 };
 
@@ -232,21 +258,30 @@ export const addPartnerInventory = async (req, res) => {
 // @route   PUT /api/partner/inventory/:id
 export const updatePartnerInventory = async (req, res) => {
   try {
+    const partnerId = getPartnerUserId(req.user);
     let item = await PartnerInventory.findById(req.params.id);
     if (!item) {
-      return res.status(404).json({ success: false, msg: 'Item not found' });
+      return res.status(404).json({ success: false, msg: "Item not found" });
     }
 
-    // Make sure user owns item
-    if (item.partnerId.toString() !== req.user.id && req.user.role !== 'admin') {
-      return res.status(401).json({ success: false, msg: 'User not authorized' });
+    if (item.partnerId.toString() !== partnerId.toString() && req.user.role !== "admin") {
+      return res.status(401).json({ success: false, msg: "User not authorized" });
     }
 
-    item = await PartnerInventory.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const update = { ...req.body };
+    if (update.stock !== undefined) {
+      update.stock = Math.max(0, Number(update.stock) || 0);
+      update.status = deriveStockStatus(update.stock);
+    }
+
+    item = await PartnerInventory.findByIdAndUpdate(req.params.id, update, {
+      new: true,
+      runValidators: true,
+    });
     res.json({ success: true, item });
   } catch (err) {
     console.error("Update Inventory Error:", err);
-    res.status(500).json({ success: false, msg: 'Server Error' });
+    res.status(500).json({ success: false, msg: "Server Error" });
   }
 };
 
@@ -254,21 +289,21 @@ export const updatePartnerInventory = async (req, res) => {
 // @route   DELETE /api/partner/inventory/:id
 export const deletePartnerInventory = async (req, res) => {
   try {
+    const partnerId = getPartnerUserId(req.user);
     const item = await PartnerInventory.findById(req.params.id);
     if (!item) {
-      return res.status(404).json({ success: false, msg: 'Item not found' });
+      return res.status(404).json({ success: false, msg: "Item not found" });
     }
 
-    // Make sure user owns item
-    if (item.partnerId.toString() !== req.user.id && req.user.role !== 'admin') {
-      return res.status(401).json({ success: false, msg: 'User not authorized' });
+    if (item.partnerId.toString() !== partnerId.toString() && req.user.role !== "admin") {
+      return res.status(401).json({ success: false, msg: "User not authorized" });
     }
 
     await PartnerInventory.findByIdAndDelete(req.params.id);
-    res.json({ success: true, msg: 'Item removed' });
+    res.json({ success: true, msg: "Item removed" });
   } catch (err) {
     console.error("Delete Inventory Error:", err);
-    res.status(500).json({ success: false, msg: 'Server Error' });
+    res.status(500).json({ success: false, msg: "Server Error" });
   }
 };
 
