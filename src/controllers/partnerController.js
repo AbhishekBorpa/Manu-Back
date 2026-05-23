@@ -3,12 +3,15 @@ import PartnerInventory from '../models/PartnerInventory.js';
 import PartnerProfile from '../models/PartnerProfile.js';
 import User from '../models/User.js';
 
+/** Consistent partner user id for queries (Mongoose document) */
+const getPartnerUserId = (user) => user._id || user.id;
+
 // @desc    Get partner dashboard stats
 // @route   GET /api/partner/stats
 // @access  Private (Partner)
 export const getDashboardStats = async (req, res) => {
   try {
-    const partnerId = req.user.id;
+    const partnerId = getPartnerUserId(req.user);
 
     const totalLeads = await Lead.countDocuments({ partnerId });
     const activeOrders = await Lead.countDocuments({ partnerId, status: 'In Progress' });
@@ -54,10 +57,19 @@ export const getDashboardStats = async (req, res) => {
 // @route   GET /api/partner/leads
 export const getPartnerLeads = async (req, res) => {
   try {
-    const leads = await Lead.find({ partnerId: req.user.id }).sort({ createdAt: -1 });
-    res.json(leads);
+    const partnerId = getPartnerUserId(req.user);
+    const leads = await Lead.find({ partnerId })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.status(200).json({
+      success: true,
+      count: leads.length,
+      leads,
+    });
   } catch (err) {
-    res.status(500).json({ msg: 'Server Error' });
+    console.error("getPartnerLeads Error:", err);
+    res.status(500).json({ success: false, msg: 'Server Error' });
   }
 };
 
