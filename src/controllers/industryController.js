@@ -1,4 +1,5 @@
 import Industry from "../models/Industry.js";
+import { DEFAULT_INDUSTRIES } from "../constants/defaultIndustries.js";
 
 
 
@@ -15,10 +16,14 @@ export const getIndustries = async (
           createdAt: -1,
         });
 
+    const list =
+      industries.length > 0 ? industries : DEFAULT_INDUSTRIES;
+
     res.status(200).json({
       success: true,
-      count: industries.length,
-      industries,
+      count: list.length,
+      industries: list,
+      isDefault: industries.length === 0,
     });
 
   } catch (err) {
