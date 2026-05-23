@@ -97,8 +97,17 @@ export const getPartnerProfiles = async (req, res) => {
         isVirtual: true
       }));
 
-    // 5. Combine and sort by creation date
-    const allPartners = [...profiles, ...missingProfiles].sort((a, b) => 
+    // 5. Combine and ensure expiry is present for paid plans
+    const durations = { 'Basic': 3, 'Premium': 6, 'Elite': 12 };
+    const allPartners = [...profiles, ...missingProfiles].map(p => {
+      const partner = p.toObject ? p.toObject() : p;
+      if (!partner.subscriptionExpiry && durations[partner.plan]) {
+        const date = new Date(partner.createdAt);
+        date.setMonth(date.getMonth() + durations[partner.plan]);
+        partner.subscriptionExpiry = date;
+      }
+      return partner;
+    }).sort((a, b) => 
       new Date(b.createdAt) - new Date(a.createdAt)
     );
 
@@ -133,8 +142,17 @@ export const getPartnerProfileById = async (req, res) => {
       });
     }
 
-    const profile = await PartnerProfile.findById(id).populate("userId", "name email role phoneNumber");
-    if (!profile) return res.status(404).json({ success: false, msg: "Partner profile not found" });
+    const profileDoc = await PartnerProfile.findById(id).populate("userId", "name email role phoneNumber");
+    if (!profileDoc) return res.status(404).json({ success: false, msg: "Partner profile not found" });
+    
+    const profile = profileDoc.toObject();
+    const durations = { 'Basic': 3, 'Premium': 6, 'Elite': 12 };
+    if (!profile.subscriptionExpiry && durations[profile.plan]) {
+      const date = new Date(profile.createdAt);
+      date.setMonth(date.getMonth() + durations[profile.plan]);
+      profile.subscriptionExpiry = date;
+    }
+
     res.status(200).json({ success: true, profile });
   } catch (err) {
     res.status(500).json({ success: false, msg: "Server error" });
