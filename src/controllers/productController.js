@@ -86,11 +86,12 @@ export const createProduct = async (
 
     let {
       title,
-      desc,
+      shortDescription,
+      longDescription,
+      mobileNumber,
       featured,
       category,
       subcategory,
-      price,
       location,
     } = req.body;
 
@@ -110,19 +111,21 @@ export const createProduct = async (
     /* 🔥 REQUIRED CHECK */
     if (
       !title ||
-      !desc ||
+      !shortDescription ||
+      !longDescription ||
       !image
     ) {
       return res.status(400).json({
         success: false,
         msg:
-          "Title, description & image required ❌",
+          "Title, descriptions & image required ❌",
       });
     }
 
     /* 🔥 CLEAN DATA */
     title = title.trim();
-    desc = desc.trim();
+    shortDescription = shortDescription.trim();
+    longDescription = longDescription.trim();
     if (typeof image === "string") image = image.trim();
     if (typeof icon === "string") icon = icon.trim();
 
@@ -144,13 +147,14 @@ export const createProduct = async (
     const product =
       await Product.create({
         title,
-        desc,
+        shortDescription,
+        longDescription,
+        mobileNumber,
         image,
         icon,
         featured,
         category,
         subcategory,
-        price,
         location,
       });
 

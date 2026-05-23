@@ -12,12 +12,26 @@ const productSchema =
         maxlength: 150,
       },
 
-      desc: {
+      shortDescription: {
         type: String,
         required: true,
         trim: true,
         minlength: 10,
-        maxlength: 1000,
+        maxlength: 500,
+      },
+
+      longDescription: {
+        type: String,
+        required: true,
+        trim: true,
+        minlength: 10,
+        maxlength: 5000,
+      },
+
+      mobileNumber: {
+        type: String,
+        trim: true,
+        default: "",
       },
 
       image: {
@@ -49,11 +63,6 @@ const productSchema =
         type: String,
         trim: true,
         default: "",
-      },
-
-      price: {
-        type: Number,
-        default: 0,
       },
 
       location: {
