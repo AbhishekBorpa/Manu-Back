@@ -9,7 +9,8 @@ import {
   verifyPartner,
   getKYCRequests,
   updatePartnerProfile,
-  deletePartnerProfile
+  deletePartnerProfile,
+  toggleBlockPartner
 } from "../controllers/adminController.js";
 import { 
   getServices, 
@@ -47,6 +48,7 @@ router.get("/partner-profiles/:id", authMiddleware, roleMiddleware("admin"), get
 router.put("/partner-profiles/:id", authMiddleware, roleMiddleware("admin"), updatePartnerProfile);
 router.delete("/partner-profiles/:id", authMiddleware, roleMiddleware("admin"), deletePartnerProfile);
 router.put("/partner-profiles/:id/verify", authMiddleware, roleMiddleware("admin"), verifyPartner);
+router.put("/partner-profiles/:id/block", authMiddleware, roleMiddleware("admin"), toggleBlockPartner);
 
 router.get("/kyc-requests", authMiddleware, roleMiddleware("admin"), getKYCRequests);
 

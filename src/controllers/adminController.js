@@ -188,7 +188,7 @@ export const getKYCRequests = async (req, res) => {
 export const updatePartnerProfile = async (req, res) => {
   try {
     const { id } = req.params;
-    const allowedFields = ['companyName', 'address', 'website', 'plan', 'verificationStatus'];
+    const allowedFields = ['companyName', 'address', 'website', 'plan', 'verificationStatus', 'subscriptionExpiry', 'isBlocked'];
     const updates = {};
     for (const key of allowedFields) {
       if (req.body[key] !== undefined) updates[key] = req.body[key];
@@ -211,6 +211,33 @@ export const updatePartnerProfile = async (req, res) => {
     }
 
     if (!profile) return res.status(404).json({ success: false, msg: "Partner profile not found" });
+
+    res.status(200).json({ success: true, profile });
+  } catch (err) {
+    res.status(500).json({ success: false, msg: "Server error" });
+  }
+};
+
+export const toggleBlockPartner = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    let profile;
+    if (id.startsWith("virtual-")) {
+      const userId = id.replace("virtual-", "");
+      profile = await PartnerProfile.create({
+        userId,
+        isBlocked: true // Default to true if blocking a virtual profile
+      });
+      profile = await profile.populate("userId", "name email");
+    } else {
+      profile = await PartnerProfile.findById(id);
+      if (!profile) return res.status(404).json({ success: false, msg: "Partner profile not found" });
+      
+      profile.isBlocked = !profile.isBlocked;
+      await profile.save();
+      profile = await profile.populate("userId", "name email");
+    }
 
     res.status(200).json({ success: true, profile });
   } catch (err) {

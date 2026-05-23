@@ -72,6 +72,15 @@ const partnerProfileSchema = new mongoose.Schema({
     type: String,
     enum: ['Free', 'Basic', 'Premium', 'Elite'],
     default: 'Free'
+  },
+
+  isBlocked: {
+    type: Boolean,
+    default: false
+  },
+
+  subscriptionExpiry: {
+    type: Date
   }
 }, {
   timestamps: true
