@@ -14,9 +14,9 @@ const manufacturingSchema =
 
       category: {
         type: String,
-        required: true,
         trim: true,
         lowercase: true,
+        default: "general",
       },
 
       price: {
@@ -33,8 +33,8 @@ const manufacturingSchema =
 
       img: {
         type: String,
-        required: true,
         trim: true,
+        default: "https://via.placeholder.com/150",
       },
 
       tag: {

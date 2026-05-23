@@ -63,24 +63,26 @@ export const createManufacturing = async (
 
     /* 🔥 REQUIRED CHECK */
     if (
-      !title ||
-      !category ||
-      !img
+      !title
     ) {
       return res.status(400).json({
         success: false,
         msg:
-          "Title, category & image required ❌",
+          "Title (Name) required ❌",
       });
     }
 
     /* 🔥 CLEAN DATA */
     title = title.trim();
 
-    category =
-      category.trim();
+    if (category) {
+      category = category.trim();
+    } else {
+      category = "general";
+    }
 
     if (typeof img === "string") img = img.trim();
+    if (!img) img = "https://via.placeholder.com/150";
 
     if (price) {
       price = price.trim();
