@@ -3,6 +3,7 @@ import express from "express";
 import {
   getFeaturedProducts,
   getProducts,
+  getProductById,
   createProduct,
   updateProduct,
   deleteProduct,
@@ -31,7 +32,7 @@ router.get(
   getFeaturedProducts
 );
 
-
+router.get("/:id", getProductById);
 
 /* 🔥 CREATE PRODUCT (ADMIN) */
 router.post(

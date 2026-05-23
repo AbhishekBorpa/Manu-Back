@@ -90,8 +90,30 @@ export const getProducts = async (
   }
 };
 
+/* 🔥 GET SINGLE PRODUCT */
+export const getProductById = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id).lean();
 
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        msg: "Product not found",
+      });
+    }
 
+    res.status(200).json({
+      success: true,
+      product,
+    });
+  } catch (err) {
+    console.log("GET PRODUCT BY ID ERROR:", err.message);
+    res.status(500).json({
+      success: false,
+      msg: "Server error",
+    });
+  }
+};
 
 /* 🔥 CREATE PRODUCT */
 export const createProduct = async (
