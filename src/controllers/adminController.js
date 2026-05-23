@@ -194,6 +194,22 @@ export const updatePartnerProfile = async (req, res) => {
       if (req.body[key] !== undefined) updates[key] = req.body[key];
     }
 
+    // Auto-calculate expiry if plan is changed and expiry is not provided
+    if (updates.plan && !req.body.subscriptionExpiry) {
+      const durations = {
+        'Basic': 3,
+        'Premium': 6,
+        'Elite': 12
+      };
+      if (durations[updates.plan]) {
+        const expiry = new Date();
+        expiry.setMonth(expiry.getMonth() + durations[updates.plan]);
+        updates.subscriptionExpiry = expiry;
+      } else if (updates.plan === 'Free') {
+        updates.subscriptionExpiry = null;
+      }
+    }
+
     let profile;
     if (id.startsWith("virtual-")) {
       const userId = id.replace("virtual-", "");
