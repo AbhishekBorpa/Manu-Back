@@ -6,6 +6,8 @@ import {
   updateProfile,
   changePassword,
   getUserOrders,
+  forgotPassword,
+  resetPassword,
 } from "../controllers/authController.js";
 
 import validationMiddleware from "../middlewares/validationMiddleware.js";
@@ -74,6 +76,18 @@ router.put(
   "/password",
   authMiddleware,
   changePassword
+);
+
+/* 🔥 FORGOT PASSWORD */
+router.post(
+  "/forgot-password",
+  forgotPassword
+);
+
+/* 🔥 RESET PASSWORD */
+router.put(
+  "/reset-password/:token",
+  resetPassword
 );
 
 /* 🔥 GET USER ORDERS */

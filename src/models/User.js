@@ -32,6 +32,16 @@ const userSchema =
         select: true,
       },
 
+      /* 🔥 RESET PASSWORD */
+      resetPasswordToken: {
+        type: String,
+        select: false,
+      },
+      resetPasswordExpires: {
+        type: Date,
+        select: false,
+      },
+
       /* 🔥 ROLE */
       role: {
         type: String,
