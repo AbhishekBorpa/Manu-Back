@@ -1,5 +1,6 @@
-const nodemailer = require("nodemailer");
-require("dotenv").config();
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+dotenv.config();
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
@@ -49,4 +50,4 @@ const sendPasswordResetEmail = async (to, token) => {
   }
 };
 
-module.exports = { sendPasswordResetEmail };
+export { sendPasswordResetEmail };
