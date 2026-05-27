@@ -40,7 +40,7 @@ router.post(
   authMiddleware,
   roleMiddleware("admin"),
   upload.fields([
-    { name: "image", maxCount: 1 },
+    { name: "image", maxCount: 10 },
     { name: "icon", maxCount: 1 },
   ]),
   createProduct
@@ -54,7 +54,7 @@ router.put(
   authMiddleware,
   roleMiddleware("admin"),
   upload.fields([
-    { name: "image", maxCount: 1 },
+    { name: "image", maxCount: 10 },
     { name: "icon", maxCount: 1 },
   ]),
   updateProduct

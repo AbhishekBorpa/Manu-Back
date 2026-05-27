@@ -36,7 +36,10 @@ export const getFeaturedProducts = async (
     res.status(200).json({
       success: true,
       count: products.length,
-      products,
+      products: products.map(p => ({
+        ...p,
+        image: p.images && p.images.length > 0 ? p.images[0] : (p.image || p.img)
+      })),
     });
 
   } catch (err) {
@@ -72,7 +75,10 @@ export const getProducts = async (
     res.status(200).json({
       success: true,
       count: products.length,
-      products,
+      products: products.map(p => ({
+        ...p,
+        image: p.images && p.images.length > 0 ? p.images[0] : (p.image || p.img)
+      })),
     });
 
   } catch (err) {
@@ -104,7 +110,10 @@ export const getProductById = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      product,
+      product: {
+        ...product,
+        image: product.images && product.images.length > 0 ? product.images[0] : (product.image || product.img)
+      },
     });
   } catch (err) {
     console.log("GET PRODUCT BY ID ERROR:", err.message);
@@ -134,13 +143,13 @@ export const createProduct = async (
       partnerId,
     } = req.body;
 
-    let image = req.body.image;
+    let images = [];
     let icon = req.body.icon;
 
     /* 🔥 HANDLE FILES FROM CLOUDINARY */
     if (req.files) {
-      if (req.files.image && req.files.image[0]) {
-        image = req.files.image[0].path;
+      if (req.files.image && req.files.image.length > 0) {
+        images = req.files.image.map(file => file.path);
       }
       if (req.files.icon && req.files.icon[0]) {
         icon = req.files.icon[0].path;
@@ -152,12 +161,12 @@ export const createProduct = async (
       !title ||
       !shortDescription ||
       !longDescription ||
-      !image
+      images.length === 0
     ) {
       return res.status(400).json({
         success: false,
         msg:
-          "Title, descriptions & image required ❌",
+          "Title, descriptions & at least one image required ❌",
       });
     }
 
@@ -165,7 +174,6 @@ export const createProduct = async (
     title = title.trim();
     shortDescription = shortDescription.trim();
     longDescription = longDescription.trim();
-    if (typeof image === "string") image = image.trim();
     if (typeof icon === "string") icon = icon.trim();
 
     const descError = validateProductDescriptions(shortDescription, longDescription);
@@ -194,7 +202,7 @@ export const createProduct = async (
         shortDescription,
         longDescription,
         mobileNumber,
-        image,
+        images,
         icon,
         featured,
         category,
@@ -207,7 +215,10 @@ export const createProduct = async (
       success: true,
       msg:
         "Product created successfully ✅",
-      product,
+      product: {
+        ...product.toObject(),
+        image: product.images && product.images.length > 0 ? product.images[0] : (product.image || product.img)
+      },
     });
 
   } catch (err) {
@@ -253,12 +264,16 @@ export const updateProduct = async (
 
     /* 🔥 HANDLE FILES FROM CLOUDINARY */
     if (req.files) {
-      if (req.files.image && req.files.image[0]) {
-        updateData.image = req.files.image[0].path;
+      if (req.files.image && req.files.image.length > 0) {
+        updateData.images = req.files.image.map(file => file.path);
       }
       if (req.files.icon && req.files.icon[0]) {
         updateData.icon = req.files.icon[0].path;
       }
+    }
+
+    if (updateData.images && typeof updateData.images === 'string') {
+      updateData.images = [updateData.images];
     }
 
     const product =
@@ -283,7 +298,10 @@ export const updateProduct = async (
       success: true,
       msg:
         "Product updated ✅",
-      product,
+      product: {
+        ...product.toObject(),
+        image: product.images && product.images.length > 0 ? product.images[0] : (product.image || product.img)
+      },
     });
 
   } catch (err) {

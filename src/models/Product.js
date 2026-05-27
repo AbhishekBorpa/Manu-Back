@@ -34,10 +34,9 @@ const productSchema =
         default: "",
       },
 
-      image: {
-        type: String,
+      images: {
+        type: [String],
         required: true,
-        trim: true,
       },
 
       icon: {

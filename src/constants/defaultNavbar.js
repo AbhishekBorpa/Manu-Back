@@ -10,4 +10,5 @@ export const DEFAULT_NAVBAR = {
   placeholder: "Search machines, products, suppliers...",
   signInButton: "Sign In",
   defaultCity: "Select City",
+  showMainCategory: true,
 };

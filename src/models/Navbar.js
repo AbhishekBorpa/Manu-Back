@@ -31,6 +31,11 @@ const navbarSchema =
         trim: true,
         default: "Select City",
       },
+
+      showMainCategory: {
+        type: Boolean,
+        default: true,
+      },
     },
     {
       timestamps: true,
