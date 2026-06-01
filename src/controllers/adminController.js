@@ -125,7 +125,7 @@ export const getPartnerProfileById = async (req, res) => {
     // Handle virtual IDs (partners without a profile document)
     if (id.startsWith("virtual-")) {
       const userId = id.replace("virtual-", "");
-      const user = await User.findById(userId).select("name email role phoneNumber createdAt");
+      const user = await User.findById(userId).select("name email role phone createdAt");
       if (!user) return res.status(404).json({ success: false, msg: "Partner user not found" });
 
       return res.status(200).json({
@@ -142,7 +142,7 @@ export const getPartnerProfileById = async (req, res) => {
       });
     }
 
-    const profileDoc = await PartnerProfile.findById(id).populate("userId", "name email role phoneNumber");
+    const profileDoc = await PartnerProfile.findById(id).populate("userId", "name email role phone");
     if (!profileDoc) return res.status(404).json({ success: false, msg: "Partner profile not found" });
     
     const profile = profileDoc.toObject();
@@ -206,7 +206,7 @@ export const getKYCRequests = async (req, res) => {
 export const updatePartnerProfile = async (req, res) => {
   try {
     const { id } = req.params;
-    const allowedFields = ['companyName', 'address', 'website', 'plan', 'verificationStatus', 'subscriptionExpiry', 'isBlocked'];
+    const allowedFields = ['companyName', 'address', 'website', 'alternatePhone', 'plan', 'verificationStatus', 'subscriptionExpiry', 'isBlocked'];
     const updates = {};
     for (const key of allowedFields) {
       if (req.body[key] !== undefined) updates[key] = req.body[key];

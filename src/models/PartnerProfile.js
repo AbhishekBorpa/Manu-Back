@@ -24,6 +24,11 @@ const partnerProfileSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  alternatePhone: {
+    type: String,
+    trim: true,
+    default: ''
+  },
   
   /* 🔥 KYC FIELDS */
   gstNumber: {

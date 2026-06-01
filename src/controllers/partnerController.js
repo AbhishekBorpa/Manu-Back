@@ -104,7 +104,7 @@ export const getPartnerInventory = async (req, res) => {
 // @route   POST /api/partner/profile
 export const updatePartnerProfile = async (req, res) => {
   try {
-    const { companyName, address, website, phone } = req.body;
+    const { companyName, address, website, phone, alternatePhone } = req.body;
     let { logo } = req.body;
 
     // Handle file from Cloudinary (via upload middleware)
@@ -118,6 +118,7 @@ export const updatePartnerProfile = async (req, res) => {
       profile.companyName = companyName || profile.companyName;
       profile.address = address || profile.address;
       profile.website = website || profile.website;
+      profile.alternatePhone = alternatePhone !== undefined ? alternatePhone : profile.alternatePhone;
       profile.logo = logo !== undefined ? logo : profile.logo;
       await profile.save();
     } else {
@@ -126,6 +127,7 @@ export const updatePartnerProfile = async (req, res) => {
         companyName: companyName || 'Ultra Partner',
         address,
         website,
+        alternatePhone,
         logo
       });
       await profile.save();

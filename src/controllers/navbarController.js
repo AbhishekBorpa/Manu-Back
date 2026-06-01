@@ -10,15 +10,11 @@ export const getNavbar = async (
 ) => {
   try {
 
-    const navbar =
+    let navbar =
       await Navbar.findOne();
 
     if (!navbar) {
-      return res.status(200).json({
-        success: true,
-        navbar: DEFAULT_NAVBAR,
-        isDefault: true,
-      });
+      navbar = await Navbar.create(DEFAULT_NAVBAR);
     }
 
     res.status(200).json({
