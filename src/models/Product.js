@@ -12,6 +12,14 @@ const productSchema =
         maxlength: 150,
       },
 
+      slug: {
+        type: String,
+        required: true,
+        trim: true,
+        unique: true,
+        lowercase: true,
+      },
+
       shortDescription: {
         type: String,
         required: true,

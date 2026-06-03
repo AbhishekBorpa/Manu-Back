@@ -3,6 +3,16 @@ import { formatValidationError } from "../utils/formatValidationError.js";
 
 const MIN_DESC_LENGTH = 10;
 
+const slugify = (text) => {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-") // Replace spaces with -
+    .replace(/[^\w-]+/g, "") // Remove all non-word chars
+    .replace(/--+/g, "-"); // Replace multiple - with single -
+};
+
 const validateProductDescriptions = (shortDescription, longDescription) => {
   const short = (shortDescription || "").trim();
   const long = (longDescription || "").trim();
@@ -99,7 +109,14 @@ export const getProducts = async (
 /* 🔥 GET SINGLE PRODUCT */
 export const getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id).lean();
+    const { id } = req.params;
+    let product;
+
+    if (id.match(/^[0-9a-fA-H]{24}$/)) {
+      product = await Product.findById(id).lean();
+    } else {
+      product = await Product.findOne({ slug: id }).lean();
+    }
 
     if (!product) {
       return res.status(404).json({
@@ -133,6 +150,7 @@ export const createProduct = async (
 
     let {
       title,
+      slug,
       shortDescription,
       longDescription,
       mobileNumber,
@@ -172,6 +190,7 @@ export const createProduct = async (
 
     /* 🔥 CLEAN DATA */
     title = title.trim();
+    slug = slug ? slug.trim().toLowerCase() : slugify(title);
     shortDescription = shortDescription.trim();
     longDescription = longDescription.trim();
     if (typeof icon === "string") icon = icon.trim();
@@ -184,14 +203,14 @@ export const createProduct = async (
     /* 🔥 DUPLICATE CHECK */
     const existingProduct =
       await Product.findOne({
-        title,
+        $or: [{ title }, { slug }]
       });
 
     if (existingProduct) {
       return res.status(400).json({
         success: false,
         msg:
-          "Product already exists ❌",
+          existingProduct.title === title ? "Product title already exists ❌" : "Product slug already exists ❌",
       });
     }
 
@@ -199,6 +218,7 @@ export const createProduct = async (
     const product =
       await Product.create({
         title,
+        slug,
         shortDescription,
         longDescription,
         mobileNumber,
@@ -243,11 +263,36 @@ export const updateProduct = async (
   try {
     let updateData = { ...req.body };
 
-    if (updateData.shortDescription !== undefined || updateData.longDescription !== undefined) {
-      const existing = await Product.findById(req.params.id).lean();
-      if (!existing) {
-        return res.status(404).json({ success: false, msg: "Product not found ❌" });
+    const existing = await Product.findById(req.params.id).lean();
+    if (!existing) {
+      return res.status(404).json({ success: false, msg: "Product not found ❌" });
+    }
+
+    if (updateData.title && !updateData.slug) {
+      updateData.slug = slugify(updateData.title);
+    } else if (updateData.slug) {
+      updateData.slug = updateData.slug.trim().toLowerCase();
+    }
+
+    if (updateData.title || updateData.slug) {
+      const duplicateQuery = { _id: { $ne: req.params.id } };
+      const orConditions = [];
+      if (updateData.title) orConditions.push({ title: updateData.title });
+      if (updateData.slug) orConditions.push({ slug: updateData.slug });
+      
+      if (orConditions.length > 0) {
+        duplicateQuery.$or = orConditions;
+        const duplicate = await Product.findOne(duplicateQuery);
+        if (duplicate) {
+          return res.status(400).json({
+            success: false,
+            msg: duplicate.title === updateData.title ? "Product title already exists ❌" : "Product slug already exists ❌",
+          });
+        }
       }
+    }
+
+    if (updateData.shortDescription !== undefined || updateData.longDescription !== undefined) {
       const short =
         updateData.shortDescription !== undefined
           ? String(updateData.shortDescription).trim()
